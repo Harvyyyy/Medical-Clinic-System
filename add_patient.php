@@ -1,3 +1,43 @@
+<?php
+include 'db.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'];
+    $age = $_POST['age'];
+    $gender = $_POST['gender'];
+    $symptoms = $_POST['symptoms'];
+    $medical_history = $_POST['medical_history'];
+
+    $query = "INSERT INTO patients (name, age, gender, symptoms, medical_history) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sisss", $name, $age, $gender, $symptoms, $medical_history);
+
+    if ($stmt->execute()) {
+        $patient_id = $conn->insert_id;
+
+        $blood_pressure = $_POST['blood_pressure'];
+        $heart_rate = $_POST['heart_rate'];
+        $temperature = $_POST['temperature'];
+        $weight = $_POST['weight'];
+        $diagnostic_tests = $_POST['diagnostic_tests'];
+
+        $query = "INSERT INTO objective_records (patient_id, blood_pressure, heart_rate, temperature, weight, diagnostic_test)
+                  VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("isssds", $patient_id, $blood_pressure, $heart_rate, $temperature, $weight, $diagnostic_tests);
+
+        if ($stmt->execute()) {
+            echo "<div class='alert alert-success text-center'>Patient and Objective Records added successfully!</div>";
+        } else {
+            echo "<div class='alert alert-danger text-center'>Error: " . $stmt->error . "</div>";
+        }
+    } else {
+        echo "<div class='alert alert-danger text-center'>Error: " . $stmt->error . "</div>";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
