@@ -9,6 +9,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
+
+
+$query = "SELECT patients.id, patients.name, patients.age, patients.gender, patients.symptoms, patients.medical_history, 
+                 objective_records.blood_pressure, objective_records.heart_rate, objective_records.temperature, 
+                 objective_records.weight, objective_records.diagnostic_test 
+          FROM patients 
+          LEFT JOIN objective_records ON patients.id = objective_records.patient_id";
+$result = $conn->query($query);
 ?>
 
 
