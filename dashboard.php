@@ -10,6 +10,20 @@ if (!isset($_SESSION['user_id'])) {
 $username = $_SESSION['username'];
 $role = $_SESSION['role'];
 
+if (isset($_GET['delete_id'])) {
+    $delete_id = $_GET['delete_id'];
+    
+    $delete_sql = "DELETE FROM patients WHERE id = ?";
+    $stmt = $conn->prepare($delete_sql);
+    $stmt->bind_param("i", $delete_id);
+    
+    if ($stmt->execute()) {
+        header("Location: dashboard.php?delete_success=true");
+        exit();
+    } else {
+        die("Delete failed: " . $conn->error);
+    }
+}
 
 $query = "SELECT patients.id, patients.name, patients.age, patients.gender, patients.symptoms, patients.medical_history, 
                  objective_records.blood_pressure, objective_records.heart_rate, objective_records.temperature, 
@@ -18,7 +32,6 @@ $query = "SELECT patients.id, patients.name, patients.age, patients.gender, pati
           LEFT JOIN objective_records ON patients.id = objective_records.patient_id";
 $result = $conn->query($query);
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -71,7 +84,14 @@ $result = $conn->query($query);
             background: #b76d1d !important; 
         }
     </style>
-    </head>
+    <script>
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this patient?")) {
+                window.location.href = "dashboard.php?delete_id=" + id;
+            }
+        }
+    </script>
+</head>
 <body>
     <div class="header">
         <h2>SOAP System Dashboard</h2>
@@ -85,6 +105,10 @@ $result = $conn->query($query);
 
     <div class="container mt-5">
         <h3 class="text-center">Patients List</h3>
+
+        <?php if (isset($_GET['delete_success'])) { ?>
+            <div class="alert alert-success">Patient deleted successfully.</div>
+        <?php } ?>
 
         <table class="table table-bordered">
             <thead>
